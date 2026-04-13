@@ -1,0 +1,54 @@
+# Core dependencies for Board Detection Module
+# Install with: pip install -r requirements.txt
+#
+# Note: For the complete environment with all dependencies,
+# use the requirements.txt from the parent directory:
+# pip install -r ../requirements.txt
+
+# Deep Learning Framework (CUDA 12 support)
+torch==2.8.0
+torchvision==0.23.0
+torchaudio==2.8.0
+triton==3.4.0
+
+# NVIDIA CUDA Libraries
+nvidia-cublas-cu12==12.8.4.1
+nvidia-cuda-cupti-cu12==12.8.90
+nvidia-cuda-nvrtc-cu12==12.8.93
+nvidia-cuda-runtime-cu12==12.8.90
+nvidia-cudnn-cu12==9.10.2.21
+nvidia-cufft-cu12==11.3.3.83
+nvidia-curand-cu12==10.3.9.90
+nvidia-cusolver-cu12==11.7.3.90
+nvidia-cusparse-cu12==12.5.8.93
+nvidia-nccl-cu12==2.27.3
+nvidia-nvjitlink-cu12==12.8.93
+nvidia-nvtx-cu12==12.8.90
+
+# YOLO Object Detection
+ultralytics==8.3.209
+ultralytics-thop==2.0.17
+
+# Image Processing
+opencv-python==4.11.0.86
+opencv-python-headless==4.12.0.88
+Pillow==10.1.0
+
+# Data Augmentation
+albumentations==2.0.8
+albucore==0.0.24
+
+# Utilities
+PyYAML==6.0.3
+numpy==1.24.3
+matplotlib==3.8.2
+
+# Jupyter (for running notebooks)
+jupyter
+ipykernel
+ipython
+
+# Additional utilities
+scipy==1.15.1
+pandas==2.2.3
+requests==2.31.0
