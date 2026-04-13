@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# YOLO Pre-trained Models (too large for git)
+*.pt
+yolov8m-seg.pt
+yolov8n-seg.pt
+
+# Training outputs and runs
+runs/
+saved_models/
+
+# Dataset files (too large for git)
+board_segmentation_dataset/images/
+board_segmentation_dataset/images_aug/
+board_segmentation_dataset/labels/
+board_segmentation_dataset/labels_aug/
+yolo_segmentation_dataset/
+*.jpg
+*.png
+*.jpeg
+
+# Keep dataset structure files
+!board_segmentation_dataset/classes.txt
+!yolo_segmentation_dataset/dataset.yaml
+
+# Detectron2 outputs
+output_detectron2/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+*copy*.ipynb
+
+*dataset/
