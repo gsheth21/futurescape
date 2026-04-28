@@ -1,0 +1,26 @@
+# Model weights
+*.pt
+*.pth
+
+# Datasets and raw data
+*dataset*/
+datasets/
+data/
+raw_*/
+
+# Training outputs
+runs/
+saved_models/
+output*/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
