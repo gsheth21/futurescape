@@ -1,6 +1,6 @@
 # FutureScape — Board Game State Detection
 
-Computer vision pipeline for the [FutureScape](https://iexcel.ncsu.edu/) board game, developed at the iEXCEL Lab at NC State University. Given a raw photograph taken during gameplay, the system outputs a structured `hex_id → piece` occupancy map — no manual observation required.
+Computer vision pipeline for the [FutureScape](https://zenodo.org/records/13538978) board game, developed at the iEXCEL Lab at NC State University. Given a raw photograph taken during gameplay, the system outputs a structured `hex_id → piece` occupancy map — no manual observation required.
 
 ## Problem
 
@@ -113,8 +113,8 @@ Datasets, model weights, training outputs, and raw images are **not committed**.
 ### Install
 
 ```bash
-git clone https://github.com/gpsheth_ncstate/FutureScape.git
-cd FutureScape
+git clone https://github.com/gsheth21/futurescape.git
+cd futurescape
 
 conda create -n futurescape python=3.9
 conda activate futurescape
