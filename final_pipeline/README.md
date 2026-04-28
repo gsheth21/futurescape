@@ -1,73 +1,33 @@
-# Final Pipeline — Board Game State Detection
+# final_pipeline — End-to-End Board Game State Detection
 
-End-to-end pipeline that takes a raw photo of the board game and outputs a `hexid → piece` occupancy map.
+## What It Does
 
----
-
-## Pipeline Overview
-
-```
-Raw Image
-    │
-    ▼
-[1] Board Detection (YOLO)
-    └─ Crops the board region from the full image (+5% padding)
-    │
-    ▼
-[2] SuperPoint Feature Matching
-    └─ Resizes crop to match template preprocessing scale (max 960px long side)
-    └─ Extracts keypoints & descriptors from crop and ideal template
-    └─ Matches features, computes homography
-    └─ Projects template hex centers into cropped image space
-    └─ Scales projected coordinates back to original crop space
-    │
-    ▼
-[3] Red Piece Detection (YOLO)
-    └─ Runs directly on the original (unresized) crop
-    └─ Returns bounding boxes + confidence scores
-    │
-    ▼
-[4] Piece → Hex Assignment
-    └─ Computes center of each piece bounding box
-    └─ For each piece: finds the nearest hex center within threshold (2 × radius)
-    └─ Each piece assigned to exactly 1 hex (nearest); multiple pieces can share a hex
-    └─ Threshold radius = 60% of median nearest-neighbour distance between hex centers
-    │
-    ▼
-[5] Outputs
-    └─ <name>_crop.png          — cropped board image
-    └─ <name>_hex_piece_map.json — { "hex_001": 0, "hex_002": 1, ... }
-    └─ <name>_hex_piece_viz.png  — annotated visualization
-```
+Takes a raw photo of the board game and outputs a `hexid → piece` occupancy map. Ties together every upstream module into a single runnable script.
 
 ---
 
-## Output Format
+## Where It Fits in the Pipeline
 
-### `<name>_hex_piece_map.json`
-```json
-{
-  "hex_001": 0,
-  "hex_002": 1,
-  "hex_003": 0,
-  ...
-}
 ```
-- `1` — hex cell is occupied by a red piece
-- `0` — hex cell is empty
+board_detection        →  detects and crops the board region
+superpoint             →  matches crop to ideal template, projects hex grid
+piece_detection        →  detects red pieces on the cropped board
+final_pipeline         →  combines all of the above → hex-piece map (this module)
+```
 
-### `<name>_hex_piece_viz.png`
-Annotated image showing:
-- **Blue boxes** — detected piece bounding boxes with confidence score
-- **Green dots** — occupied hex centers
-- **Grey dots** — empty hex centers
-- Hex IDs labelled next to each dot
+**Inputs:** raw `.jpg` / `.jpeg` / `.png` photo(s) of the board  
+**Outputs per image:**
+- `<name>_crop.png` — cropped board region
+- `<name>_hex_piece_map.json` — `{ "hex_001": 0, "hex_002": 1, ... }` (`1` = occupied, `0` = empty)
+- `<name>_hex_piece_viz.png` — annotated visualization (piece boxes + hex centers)
 
 ---
 
-## Usage
+## How to Run
 
 ```bash
+cd final_pipeline/src
+
 # Single image
 python pipeline.py --image path/to/photo.jpg --output_dir path/to/output/
 
@@ -77,42 +37,83 @@ python pipeline.py --image_dir path/to/photos/ --output_dir path/to/output/
 
 Supported input formats: `.jpg`, `.jpeg`, `.png`
 
+All model paths and tunable parameters are read from `final_pipeline/.env` — edit that file before running (see Setup below).
+
 ---
 
-## Hardcoded Paths (edit in `pipeline.py` if needed)
+## Setup
 
-| Variable | Description |
+### 1. Install dependencies
+
+```bash
+pip install ultralytics opencv-python numpy torch python-dotenv
+```
+
+### 2. Clone SuperPoint
+
+The pipeline uses the MagicLeap SuperPoint implementation. Clone it into the `superpoint/` directory:
+
+```bash
+git clone https://github.com/magicleap/SuperPointPretrainedNetwork.git \
+    superpoint/SuperPointPretrainedNetwork
+```
+
+### 3. Place model weights
+
+The following files are **not** tracked in git. Download / copy them and update the paths in `.env`:
+
+| File | Description |
 |---|---|
-| `BOARD_YOLO_WEIGHTS` | YOLO model for board/map detection |
-| `PIECE_YOLO_WEIGHTS` | YOLO model for red piece detection |
-| `SP_WEIGHTS` | Pretrained SuperPoint weights |
-| `TEMPLATE_DIR` | Directory containing the ideal template image and `.npy` files |
-| `HEX_CENTERS_PATH` | JSON file with hex center coordinates on the ideal template |
+| `board_detector_v1.pt` | YOLO model from `board_detection/saved_models/` |
+| `red_piece_detector.pt` | YOLO model from `piece_detection/saved_models/` |
+| `superpoint_v1.pth` | Pretrained SuperPoint weights (from the cloned repo above) |
+| `cropped_ideal_image.png` | Ideal template image (from `superpoint/raw_dataset/`) |
+| `cropped_ideal_image_gt.npy` | Template keypoints `.npy` |
+| `cropped_ideal_image_hex_centers.json` | Hex center coordinates on the ideal template |
+
+### 4. Configure `.env`
+
+Edit `final_pipeline/.env` with the absolute paths for your machine:
+
+```
+SUPERPOINT_SRC_DIR=/absolute/path/to/superpoint/src
+BOARD_YOLO_WEIGHTS=/absolute/path/to/board_detector_v1.pt
+PIECE_YOLO_WEIGHTS=/absolute/path/to/red_piece_detector.pt
+SP_WEIGHTS=/absolute/path/to/superpoint_v1.pth
+TEMPLATE_DIR=/absolute/path/to/cropped_ideal_templates/
+HEX_CENTERS_PATH=/absolute/path/to/cropped_ideal_image_hex_centers.json
+BOARD_CONF=0.5
+PIECE_CONF=0.5
+BOARD_PAD=0.05
+```
 
 ---
 
-## Key Design Decisions
-
-### Coordinate Space Alignment
-SuperPoint requires the test image to be preprocessed identically to the ideal template (resized so long side ≤ 960px). The pipeline resizes the crop for SuperPoint, then **scales the projected hex centers back** to original crop space so they align with piece detections, which run on the unresized crop.
-
-### Piece–Hex Assignment
-- **One piece → one hex**: each piece is assigned to its single nearest hex center
-- **One hex → many pieces**: a hex is marked occupied if any piece maps to it  
-- **Threshold**: a piece is only eligible for assignment if its center is within `2 × radius` of a hex center, where `radius` adapts dynamically to the projected hex spacing (handles perspective distortion at different zoom levels)
-
-### Model Loading
-All models (board YOLO, piece YOLO, SuperPoint) and the template are loaded **once** at startup and reused across all images in batch mode.
-
----
-
-## Dependencies
+## Pipeline Steps
 
 ```
-ultralytics
-opencv-python
-numpy
-torch
+Raw Image
+    │
+    ▼
+[1] Map Detection (YOLO)
+    └─ Crops the board region from the full image (+5% padding)
+    │
+    ▼
+[2] SuperPoint Feature Matching
+    └─ Resizes crop to match template preprocessing scale (max 960px long side)
+    └─ Extracts keypoints & descriptors, matches to template, computes homography
+    └─ Projects template hex centers into crop space, scales back to original resolution
+    │
+    ▼
+[3] Piece Detection (YOLO)
+    └─ Runs on the original (unresized) crop
+    └─ Returns bounding boxes + confidence scores
+    │
+    ▼
+[4] Piece → Hex Assignment
+    └─ Each piece center is matched to the nearest hex center within 2 × adaptive radius
+    └─ Radius = 60% of median nearest-neighbour distance between hex centers
+    │
+    ▼
+[5] Outputs saved to --output_dir
 ```
-
-SuperPoint also requires the `SuperPointPretrainedNetwork` repo cloned at `../SuperPointPretrainedNetwork/` relative to `../superpoint/src/`.
