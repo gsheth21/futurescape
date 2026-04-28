@@ -157,9 +157,9 @@ See [final_pipeline/README.md](final_pipeline/README.md) for full setup: `.env` 
 
 ## Contributors
 
+- Gaurav Sheth
 - Dee Kandel
 - Ashwin Mahesh
 - Petr Shvarev
 - Justin Huang
-- Gaurav Sheth
 - Dr. Aditi Mallavarapu (iEXCEL Lab, NC State University)
