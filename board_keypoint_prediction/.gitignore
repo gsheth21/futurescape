@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# YOLO Pre-trained Models (too large for git)
+*.pt
+yolo11n.pt
+yolov8m-pose.pt
+yolov8n-pose.pt
+
+# Training outputs and runs
+runs/
+saved_models/
+
+# Dataset files (too large for git)
+yolo_keypoint_dataset/images/
+yolo_keypoint_dataset/images_aug/
+yolo_keypoint_dataset/labels/
+yolo_keypoint_dataset/labels_aug/
+yolo_pose_dataset/
+*.jpg
+*.png
+*.jpeg
+
+# Keep dataset structure files
+!yolo_keypoint_dataset/classes.txt
+!yolo_keypoint_dataset/notes.json
+!yolo_keypoint_dataset/yolo_keypoint_dataset.json
+!yolo_pose_dataset/dataset.yaml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+*copy.ipynb
+
+*dataset/
