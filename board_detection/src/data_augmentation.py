@@ -12,19 +12,24 @@ import os
 import cv2
 import albumentations as A
 import random
+from pathlib import Path
+from dotenv import load_dotenv
 
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
 
-# Dataset directory paths
-DATASET_DIR = "segmented_dataset"  # Root directory containing your dataset
-IMG_DIR = os.path.join(DATASET_DIR, "images")  # Original images directory
-LBL_DIR = os.path.join(DATASET_DIR, "labels")  # Original YOLO labels directory
+# Load .env from the board_detection/ directory (one level up from src/)
+load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
+
+# Dataset directory paths (set via .env)
+DATASET_DIR = Path(os.environ["AUG_DATASET_DIR"])
+IMG_DIR     = DATASET_DIR / "images"
+LBL_DIR     = DATASET_DIR / "labels"
 
 # Output directories for augmented data
-OUT_IMG_DIR = os.path.join(DATASET_DIR, "images_aug")  # Augmented images output
-OUT_LBL_DIR = os.path.join(DATASET_DIR, "labels_aug")  # Augmented labels output
+OUT_IMG_DIR = DATASET_DIR / "images_aug"
+OUT_LBL_DIR = DATASET_DIR / "labels_aug"
 
 # Create output directories if they don't exist
 os.makedirs(OUT_IMG_DIR, exist_ok=True)
@@ -115,8 +120,8 @@ def write_yolo_labels(label_path, boxes, labels):
 # MAIN AUGMENTATION LOOP
 # ============================================================================
 
-# Number of augmented versions to create per original image
-N_AUGS = 10  # Increase this to generate more training data
+# ---- Tunable setting (adjust here directly) ----
+N_AUGS = 10  # Number of augmented versions to create per original image
 
 # Get all image files from the input directory
 img_files = [f for f in os.listdir(IMG_DIR) if f.lower().endswith((".jpg", ".png", ".jpeg"))]
@@ -187,6 +192,6 @@ for img_file in img_files:
 # ============================================================================
 
 print("-" * 60)
-print("✅ Augmentation finished!")
+print("Augmentation finished!")
 print(f"Augmented images saved to: {OUT_IMG_DIR}")
 print(f"Augmented labels saved to: {OUT_LBL_DIR}")
